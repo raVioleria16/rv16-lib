@@ -9,7 +9,7 @@ Config = TypeVar("Config", bound=BaseModel)
 logger = get_logger("utils")
 
 
-def get_object_from_config(filename: str = "app.yaml", config_model: Type[Config] = BaseModel) -> Config:
+def get_object_from_config(filename: str = "app.yaml", config_model: Type[Config] = BaseModel) -> BaseModel:
     """
     Loads a YAML configuration file from the specified path and returns it as a Pydantic object.
 
