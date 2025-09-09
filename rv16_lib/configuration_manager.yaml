@@ -1,0 +1,4 @@
+hostname: srv-configuration-manager
+port: 8000
+register_path: /register-service
+get_path: /get-service-configuration

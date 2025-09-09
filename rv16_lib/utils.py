@@ -5,11 +5,11 @@ from .logger import get_logger
 from typing import TypeVar, Type
 
 # Create a type variable for the Config model
-Config = TypeVar("Config", bound=BaseModel)
+TConfig = TypeVar("TConfig", bound=BaseModel)
 logger = get_logger("utils")
 
 
-def get_object_from_config(filename: str = "app.yaml", config_model: Type[Config] = BaseModel) -> BaseModel:
+def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml") -> TConfig:
     """
     Loads a YAML configuration file from the specified path and returns it as a Pydantic object.
 
