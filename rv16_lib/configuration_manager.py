@@ -6,7 +6,7 @@ from .logger import logger
 # class ConfigurationManagerResponse(BaseModel):
 #     pass
 
-class ConfigurationManager(BaseModel):
+class ConfigurationManagerProxy(BaseModel):
     hostname: str = "srv-configuration-manager"
     port: int = 8000
     register_path: str = "/register-service"
@@ -38,4 +38,4 @@ class ConfigurationManager(BaseModel):
         response = await self._send_request(url, payload)
         return response
 
-configuration_manager = ConfigurationManager()
+configuration_manager = ConfigurationManagerProxy()
