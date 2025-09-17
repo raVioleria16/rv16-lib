@@ -1,4 +1,3 @@
-import os
 import json
 import redis
 from typing import Dict, Optional, Any
@@ -31,7 +30,24 @@ class RedisConnector(DatabaseConnector):
             self.client = None
 
     def insert_one(self, element: RedisElement):
-        self.client.set(element.key, element.value)
+        """
+        Inserts a single key-value pair into Redis.
+        """
+        try:
+            if self.client:
+                value = json.dumps(element.value)
+                self.client.set(element.key, value)
+                logger.info(f"Successfully inserted key: {element.key}")
+                return True
+            else:
+                logger.warning("Redis client not connected.")
+                return False
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error serializing value for key {element.key}: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Error inserting key {element.key}: {e}")
+            return False
 
     def delete_one(self, element: RedisElement):
         """

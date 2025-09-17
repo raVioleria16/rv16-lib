@@ -9,6 +9,16 @@ description = "A shared Python utility library for the raVioleria16 project."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-"PyYAML",
-"pydantic"
+    "PyYAML",
+    "pydantic"
+]
+
+[project.optional-dependencies]
+core = [
+    "PyYAML==6.0.2",
+    "pydantic==2.11.9",
+    "httpx==0.28.1"
+]
+redis = [
+    "redis>=6.4.0"
 ]

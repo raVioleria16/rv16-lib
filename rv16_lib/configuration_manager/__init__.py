@@ -1,55 +1,89 @@
 from typing import TypeVar, Type, Optional
 from pydantic import BaseModel
-import httpx
 
-from rv16_lib.configuration_manager.entities import ConfigurationPayload
+from rv16_lib.configuration_manager.entities import ServiceRegistrationRequest, ServiceConfigurationRequest, \
+    ServicePairingRequest
 from rv16_lib.configuration_manager.exceptions import ConfigurationManagerProxyException
 from rv16_lib.logger import logger
-
+from rv16_lib.utils import call_srv
 
 # Create a type variable for the Config model
 TConfig = TypeVar("TConfig", bound=BaseModel)
 
 class ConfigurationManagerProxy(BaseModel):
+    """ A proxy client for interacting with the Configuration Manager service.
+    This class provides methods to register services and retrieve service configurations
+    from a remote Configuration Manager service via HTTP requests.
+    """
     hostname: str = "srv-configuration-manager"
     port: int = 8000
     register_path: str = "/register-service"
+    pair_path: str = "/pair-service"
     get_path: str = "/get-service-configuration"
+    health_path: str = "/health-service"
 
-    @staticmethod
-    async def _send_request(url: str, payload: dict, timeout: int = 5):
-        try:
-            async with httpx.AsyncClient() as client:
-                logger.info(f"Sending request to ConfigurationManager at {url}...")
-                response = await client.post(url, json=payload, timeout=timeout)
-                response.raise_for_status()
-                logger.info("Request successful! ✅")
-                return response
-                # TODO - parse response to ConfigurationManagerResponse
-                # return ConfigurationManagerResponse(**response.json())
-        except httpx.RequestError as e:
-            logger.error(f"Failed to send request: {e} ❌")
-            raise e
+    async def register(self, request: ServiceRegistrationRequest):
+        """Register a service with the Configuration Manager.
+        Args:
+            request (ServiceRegistrationRequest): The service registration request containing
+                service details to be registered
 
-    async def register(self, service: str, configuration: ConfigurationPayload):
-        payload = {
-            "service": service,
-            "configuration": configuration.model_dump()
-        }
+        Returns:
+            dict: The JSON response from the configuration manager
+
+        Raises:
+            ConfigurationManagerProxyException: If the registration fails (non-200 status code)
+            httpx.RequestError: If the request fails due to network or other issues
+            httpx.HTTPStatusError: If the response status indicates an error
+        """
         url = f"http://{self.hostname}:{self.port}{self.register_path}"
-
-        response = await self._send_request(url, payload)
+        response = await call_srv(url, request.model_dump())
 
         if response.status_code != 200:
             raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)
 
         return response.json()
 
+    async def pair(self, request: ServicePairingRequest):
+        """Pair a service to a target (srv or app) through the Configuration Manager.
+        Args:
+            request (ServicePairingRequest): The service pairing request containing
+                details about the services to be paired
 
-    async def get(self, source: str, target: str, model_type: Optional[Type[TConfig]] = None):
-        payload = {"source": source, "target": target}
+        Returns:
+            dict: The JSON response from the configuration manager
+
+        Raises:
+            ConfigurationManagerProxyException: If the pairing fails (non-200 status code)
+            httpx.RequestError: If the request fails due to network or other issues
+            httpx.HTTPStatusError: If the response status indicates an error
+        """
+        url = f"http://{self.hostname}:{self.port}{self.pair_path}"
+        response = await call_srv(url, request.model_dump())
+
+        if response.status_code != 200:
+            raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)
+
+        return response.json()
+
+    async def get(self, payload: ServiceConfigurationRequest, model_type: Optional[Type[TConfig]] = None):
+        """Retrieve service configuration from the Configuration Manager.
+        Args:
+            payload (ServiceConfigurationRequest): The service configuration request containing
+                details about the configuration to retrieve
+            model_type (Optional[Type[TConfig]], optional): The Pydantic model type to parse
+                the response into. If None, returns raw JSON. Defaults to None.
+
+        Returns:
+            Union[TConfig, dict]: The configuration data either as the specified model type
+                or as a dictionary if no model_type is provided
+
+        Raises:
+            httpx.RequestError: If the request fails due to network or other issues
+            httpx.HTTPStatusError: If the response status indicates an error
+        """
         url = f"http://{self.hostname}:{self.port}{self.get_path}"
-        response = await self._send_request(url, payload)
+        response = await call_srv(url, payload.model_dump())
 
         if response.status_code != 200:
             logger.error(f"Failed to send request: {response} <UNK>")

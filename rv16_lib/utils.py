@@ -1,12 +1,43 @@
 import os
+from typing import TypeVar, Type, Optional
+
+import httpx
 import yaml
+from httpx import Response
 from pydantic import BaseModel
-from .logger import get_logger
-from typing import TypeVar, Type
+
+from rv16_lib.logger import get_logger
 
 # Create a type variable for the Config model
 TConfig = TypeVar("TConfig", bound=BaseModel)
 logger = get_logger("utils")
+
+
+async def call_srv(method: str, url: str, payload: Optional[dict] = None, timeout: int = 5) -> Response:
+    """ Send an asynchronous HTTP POST request to the specified URL.
+   Args:
+       method (str): The HTTP method to use (e.g., 'POST', 'GET')
+       url (str): The target URL for the request
+       payload (dict): The JSON payload to send in the request body
+       timeout (int, optional): Request timeout in seconds. Defaults to 5.
+
+   Returns:
+       httpx.Response: The HTTP response object
+
+   Raises:
+       httpx.RequestError: If the request fails due to network or other issues
+       httpx.HTTPStatusError: If the response status indicates an error (raised by raise_for_status())
+   """
+    try:
+        async with httpx.AsyncClient() as client:
+            logger.info(f"Sending request to {url}...")
+            response = await client.request(method=method, url=url, json=payload, timeout=timeout)
+            response.raise_for_status()
+            logger.info("Request successful! ✅")
+            return response
+    except httpx.RequestError as e:
+        logger.error(f"Failed to send request: {e} ❌")
+        raise e
 
 
 def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml") -> TConfig:
