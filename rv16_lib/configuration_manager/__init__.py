@@ -11,17 +11,18 @@ from rv16_lib.utils import call_srv, get_object_from_config
 # Create a type variable for the Config model
 TConfig = TypeVar("TConfig", bound=BaseModel)
 
-class ConfigurationManagerProxy(BaseModel):
+class ConfigurationManagerProxy:
     """ A proxy client for interacting with the Configuration Manager service.
     This class provides methods to register services and retrieve service configurations
     from a remote Configuration Manager service via HTTP requests.
     """
-    hostname: str
-    port: int
-    register_path: str
-    pair_path: str
-    get_path: str
-    health_path: str
+
+    def __init__(self, hostname: str = "srv-configuration-manager", port: int = 8000, register_path: str = "/register-service", pair_path: str = "/pair-service", get_path: str = "/get-service-configuration"):
+        self.hostname = hostname
+        self.port = port
+        self.register_path = register_path
+        self.pair_path = pair_path
+        self.get_path = get_path
 
     async def register(self, request: ServiceRegistrationRequest) -> dict:
         """Register a service with the Configuration Manager.
@@ -92,4 +93,4 @@ class ConfigurationManagerProxy(BaseModel):
         response = model_type(**response.json()) if model_type else response.json()
         return response
 
-configuration_manager = get_object_from_config(ConfigurationManagerProxy, f"{os.path.dirname(__file__)}/config.yaml", abs_path=True)
+configuration_manager = ConfigurationManagerProxy()

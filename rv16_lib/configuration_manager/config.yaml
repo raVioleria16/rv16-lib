@@ -1,6 +1,6 @@
-hostname: "srv-configuration-manager"
-port: 8000
-register_path: "/register-service"
-pair_path: "/pair-service"
-get_path: "/get-service-configuration"
-health_path: "/health"
+#hostname: "srv-configuration-manager"
+#port: 8000
+#register_path: "/register-service"
+#pair_path: "/pair-service"
+#get_path: "/get-service-configuration"
+#health_path: "/health"
