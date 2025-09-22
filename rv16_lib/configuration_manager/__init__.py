@@ -1,11 +1,12 @@
-from typing import TypeVar, Type, Optional
+import os
+from typing import TypeVar, Type, Optional, Union
 from pydantic import BaseModel
 
 from rv16_lib.configuration_manager.entities import ServiceRegistrationRequest, ServiceConfigurationRequest, \
     ServicePairingRequest
 from rv16_lib.configuration_manager.exceptions import ConfigurationManagerProxyException
 from rv16_lib.logger import logger
-from rv16_lib.utils import call_srv
+from rv16_lib.utils import call_srv, get_object_from_config
 
 # Create a type variable for the Config model
 TConfig = TypeVar("TConfig", bound=BaseModel)
@@ -15,14 +16,14 @@ class ConfigurationManagerProxy(BaseModel):
     This class provides methods to register services and retrieve service configurations
     from a remote Configuration Manager service via HTTP requests.
     """
-    hostname: str = "srv-configuration-manager"
-    port: int = 8000
-    register_path: str = "/register-service"
-    pair_path: str = "/pair-service"
-    get_path: str = "/get-service-configuration"
-    health_path: str = "/health-service"
+    hostname: str
+    port: int
+    register_path: str
+    pair_path: str
+    get_path: str
+    health_path: str
 
-    async def register(self, request: ServiceRegistrationRequest):
+    async def register(self, request: ServiceRegistrationRequest) -> dict:
         """Register a service with the Configuration Manager.
         Args:
             request (ServiceRegistrationRequest): The service registration request containing
@@ -44,7 +45,7 @@ class ConfigurationManagerProxy(BaseModel):
 
         return response.json()
 
-    async def pair(self, request: ServicePairingRequest):
+    async def pair(self, request: ServicePairingRequest) -> dict:
         """Pair a service to a target (srv or app) through the Configuration Manager.
         Args:
             request (ServicePairingRequest): The service pairing request containing
@@ -66,7 +67,7 @@ class ConfigurationManagerProxy(BaseModel):
 
         return response.json()
 
-    async def get(self, payload: ServiceConfigurationRequest, model_type: Optional[Type[TConfig]] = None):
+    async def get(self, payload: ServiceConfigurationRequest, model_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
         """Retrieve service configuration from the Configuration Manager.
         Args:
             payload (ServiceConfigurationRequest): The service configuration request containing
@@ -91,4 +92,4 @@ class ConfigurationManagerProxy(BaseModel):
         response = model_type(**response.json()) if model_type else response.json()
         return response
 
-configuration_manager = ConfigurationManagerProxy()
+configuration_manager = get_object_from_config(ConfigurationManagerProxy, f"{os.path.dirname(__file__)}/config.yaml", abs_path=True)

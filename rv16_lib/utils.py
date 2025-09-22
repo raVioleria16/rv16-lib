@@ -40,18 +40,22 @@ async def call_srv(method: str, url: str, payload: Optional[dict] = None, timeou
         raise e
 
 
-def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml") -> TConfig:
+def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml", abs_path: bool = False) -> TConfig:
     """
     Loads a YAML configuration file from the specified path and returns it as a Pydantic object.
 
     Args:
         filename (str): The name of the configuration file.
         config_model (Type[Config]): The Pydantic model to validate the configuration against.
+        abs_path: If True, the filename is treated as an absolute path. Defaults to False.
 
     Returns:
         Config: An instance of the Pydantic model populated with the configuration data.
     """
-    filepath = os.path.join(os.getenv("CONFIG_DIR", "config"), filename)
+    if not abs_path:
+        filepath = os.path.join(os.getenv("CONFIG_DIR", "config"), filename)
+    else:
+        filepath = filename
 
     logger.info(f"Loading configuration from {filepath}")
 
