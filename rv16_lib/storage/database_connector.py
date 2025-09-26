@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -7,28 +7,26 @@ from pydantic import BaseModel
 class DatabaseElement(BaseModel):
     ...
 
+TConfig = TypeVar("TConfig", bound=DatabaseElement)
+
 class DatabaseConnector(ABC):
-
+    # ...
     @abstractmethod
-    def insert_one(self, element: DatabaseElement):
+    def insert_one(self, *args, **kwargs) -> Any:
         raise NotImplementedError("Subclasses must implement this method")
 
     @abstractmethod
-    def delete_one(self, element: DatabaseElement):
+    def delete(self, *args, **kwargs) -> Any:
         raise NotImplementedError("Subclasses must implement this method")
 
     @abstractmethod
-    def update_one(self, element: DatabaseElement):
+    def update(self, *args, **kwargs) -> Any:
         raise NotImplementedError("Subclasses must implement this method")
 
     @abstractmethod
-    def find_one(self, element: DatabaseElement) -> DatabaseElement:
+    def find(self, *args, **kwargs) -> Any:
         raise NotImplementedError("Subclasses must implement this method")
 
     @abstractmethod
-    def find_all(self) -> list[DatabaseElement]:
-        raise NotImplementedError("Subclasses must implement this method")
-
-    @abstractmethod
-    def execute_query(self, query: Any) -> list[DatabaseElement]:
+    def execute_query(self, *args, **kwargs) -> Any:
         raise NotImplementedError("Subclasses must implement this method")
