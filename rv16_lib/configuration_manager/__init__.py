@@ -17,14 +17,13 @@ class ConfigurationManagerProxy:
     from a remote Configuration Manager service via HTTP requests.
     """
 
-    def __init__(self, hostname: str = "srv-configuration-manager", port: int = 8000, register_path: str = "/register-service", pair_path: str = "/pair-service", get_path: str = "/get-service-configuration"):
+    def __init__(self, hostname: str = "srv-configuration-manager", port: int = 8000, pair_path: str = "/pair-service", get_path: str = "/get-service-configuration"):
         self.hostname = hostname
         self.port = port
-        self.register_path = register_path
         self.pair_path = pair_path
         self.get_path = get_path
 
-    async def register(self, request: ServiceRegistrationRequest) -> dict:
+    async def register(self, request: ServiceRegistrationRequest, path: str = "/register-service") -> dict:
         """Register a service with the Configuration Manager.
         Args:
             request (ServiceRegistrationRequest): The service registration request containing
@@ -38,8 +37,8 @@ class ConfigurationManagerProxy:
             httpx.RequestError: If the request fails due to network or other issues
             httpx.HTTPStatusError: If the response status indicates an error
         """
-        url = f"http://{self.hostname}:{self.port}{self.register_path}"
-        response = await call_srv(url, request.model_dump())
+        url = f"http://{self.hostname}:{self.port}{path}"
+        response = await call_srv(method="POST", url=url, payload=request.model_dump())
 
         if response.status_code != 200:
             raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)

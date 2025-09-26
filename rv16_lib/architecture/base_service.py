@@ -1,5 +1,6 @@
 from starlette import status
 
+from rv16_lib import logger
 from rv16_lib.exceptions import RV16Exception
 from rv16_lib.architecture.base_provider import BaseProvider
 from rv16_lib.configuration_manager import configuration_manager as cm
@@ -13,12 +14,15 @@ class BaseService:
         self.providers: dict[str, BaseProvider] = {}
 
     async def register_service(self, provider: str, configuration: dict):
+        logger.info("Starting service registration...")
+
         request = ServiceRegistrationRequest(
             provider=provider,
             service=self.service_name,
             configuration=configuration
         )
         response = await cm.register(request)
+        logger.info(f"Service registration response: {response}")
         return response
 
     async def pair_to_service(self, provider: str, service: str, configuration: dict):
