@@ -49,23 +49,23 @@ class RedisConnector(DatabaseConnector):
             logger.error(f"Error inserting key {element.key}: {e}")
             return False
 
-    def delete_one(self, element: RedisElement):
+    def delete(self, element: RedisElement):
         """
         Deletes a single key-value pair from Redis.
         """
         try:
-            if self.client and self.client.exists(element.key):
-                self.client.delete(element.key)
+            if self.client:
+                self.client.delete(element.key + ":*")
                 logger.info(f"Successfully deleted key: {element.key}")
                 return True
             else:
-                logger.warning(f"Key not found or client not connected: {element.key}")
+                logger.warning(f"Client not connected: {element.key}")
                 return False
         except Exception as e:
             logger.error(f"Error deleting key {element.key}: {e}")
             return False
 
-    def update_one(self, element: RedisElement):
+    def update(self, element: RedisElement):
         """
         Updates the value of a single key in Redis.
         """
@@ -81,7 +81,7 @@ class RedisConnector(DatabaseConnector):
             logger.error(f"Error updating key {element.key}: {e}")
             return False
 
-    def find_one(self, element: RedisElement) -> Optional[Dict[str, Any]]:
+    def find(self, element: RedisElement) -> Optional[Dict[str, Any]]:
         """
         Finds a single key's value in Redis.
         """
@@ -101,9 +101,5 @@ class RedisConnector(DatabaseConnector):
             logger.error(f"Error finding key {element.key}: {e}")
             return None
 
-    def find_all(self) -> list[Any]:
-        raise NotImplementedError
-
     def execute_query(self, query: Any):
         raise NotImplementedError
-
