@@ -39,7 +39,7 @@ class ConfigurationManagerProxy:
             httpx.HTTPStatusError: If the response status indicates an error
         """
         url = f"http://{self.hostname}:{self.port}{self.register_path}"
-        response = await call_srv(url, request.model_dump())
+        response = await call_srv(method="POST", url=url, payload=request.model_dump())
 
         if response.status_code != 200:
             raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)

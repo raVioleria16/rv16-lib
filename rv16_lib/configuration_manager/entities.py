@@ -23,9 +23,7 @@ class ServicePairingRequest(BaseServiceRequest):
 class ServiceConfigurationRequest(BaseServiceRequest):
     """Request for configuring a service.
     Args:
-        service: The service to be configured
-        target: The target application/service for the configuration
+        service: The service name
     """
     service: str
-    target: str
 
