@@ -23,6 +23,10 @@ core = [
 redis = [
     "redis>=6.4.0"
 ]
+mongo = [
+    "pymongo==4.15.1"
+]
+
 srv = [
     "fastapi==0.117.1",
     "uvicorn==0.37.0"
