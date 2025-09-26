@@ -67,29 +67,31 @@ class ConfigurationManagerProxy:
 
         return response.json()
 
-    async def get(self, payload: ServiceConfigurationRequest, model_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
+    async def get(self, payload: ServiceConfigurationRequest, output_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
         """Retrieve service configuration from the Configuration Manager.
         Args:
             payload (ServiceConfigurationRequest): The service configuration request containing
                 details about the configuration to retrieve
-            model_type (Optional[Type[TConfig]], optional): The Pydantic model type to parse
+            output_type (Optional[Type[TConfig]], optional): The Pydantic model type to parse
                 the response into. If None, returns raw JSON. Defaults to None.
 
         Returns:
             Union[TConfig, dict]: The configuration data either as the specified model type
-                or as a dictionary if no model_type is provided
+                or as a dictionary if no output_type is provided
 
         Raises:
             httpx.RequestError: If the request fails due to network or other issues
             httpx.HTTPStatusError: If the response status indicates an error
         """
         url = f"http://{self.hostname}:{self.port}{self.get_path}"
-        response = await call_srv(url, payload.model_dump())
+        response = await call_srv(method="POST",
+                                  url=url,
+                                  payload=payload.model_dump())
 
         if response.status_code != 200:
             logger.error(f"Failed to send request: {response} <UNK>")
 
-        response = model_type(**response.json()) if model_type else response.json()
+        response = output_type(**response.json()) if output_type else response.json()
         return response
 
 configuration_manager = ConfigurationManagerProxy()

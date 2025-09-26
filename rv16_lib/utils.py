@@ -38,6 +38,9 @@ async def call_srv(method: str, url: str, payload: Optional[dict] = None, timeou
     except httpx.RequestError as e:
         logger.error(f"Failed to send request: {e} ❌")
         raise e
+    except Exception as e:
+        logger.error(f"Failed to send request: {e} ❌")
+        raise e
 
 
 def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml", abs_path: bool = False) -> TConfig:

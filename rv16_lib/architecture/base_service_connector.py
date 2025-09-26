@@ -11,22 +11,24 @@ class BaseConnectionParams(BaseModel):
 
 class BaseServiceConfig(BaseModel):
     provider: str
+    name: str
 
 TConnectionParams = TypeVar("TConnectionParams", bound=BaseConnectionParams)
 TServiceConfig = TypeVar("TServiceConfig", bound=BaseServiceConfig)
 
-class BaseServiceConnector(ABC):
+class BaseServiceConnector:
 
-    def __init__(self, srv_name: str, config: TServiceConfig):
+    def __init__(self, config: TServiceConfig):
         self.url = None
         self.connection = None
-        self.srv_name = srv_name
         self.config = config
+        self.provider = self.config.provider
+        self.srv_name = self.config.name
 
-    async def setup_connections(self, model_type, provider="local"):
-        self.connection = await cm.get(payload=ServiceConfigurationRequest(service=self.srv_name, provider=provider),
-                                       model_type=model_type)
-        self.url = f"http://{self.connection.hostname}:{self.connection.port}"
+    async def setup_connections(self, cm_provider: str, output_type): # TODO - tipizzare
+        self.connection = await cm.get(payload=ServiceConfigurationRequest(service=self.srv_name,
+                                                                           provider=cm_provider),
+                                       output_type=output_type)
 
-    async def call(self, *args, **kwargs):
-        raise NotImplementedError("Subclasses must implement this method")
+    # async def call(self, *args, **kwargs):
+    #     raise NotImplementedError("Subclasses must implement this method")
