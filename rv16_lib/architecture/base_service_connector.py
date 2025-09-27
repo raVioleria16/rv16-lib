@@ -12,7 +12,7 @@ class BaseConnectionParams(BaseModel):
 
 class BaseServiceConfig(BaseModel):
     provider: str
-    name: str
+    hostname: str
 
 
 TConnectionParams = TypeVar("TConnectionParams", bound=BaseConnectionParams)
@@ -26,7 +26,7 @@ class BaseServiceConnector:
         self.connection: Optional[Any] = None
         self.config = config
         self.provider = self.config.provider
-        self.srv_name = self.config.name
+        self.srv_name = self.config.hostname
 
     def setup_connections(self, cm_proxy: ConfigurationManagerProxy, cm_provider: str, output_type):  # TODO - tipizzare
         self.connection = cm_proxy.get(payload=ServiceConfigurationRequest(service=self.srv_name,

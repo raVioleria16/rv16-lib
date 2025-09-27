@@ -1,4 +1,4 @@
-from rv16_lib.entities.base_service_request import BaseServiceRequest
+from rv16_lib.architecture.base_service_request import BaseServiceRequest
 
 class ServiceRegistrationRequest(BaseServiceRequest):
     """Request for registering a service.

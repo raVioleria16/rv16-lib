@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from starlette import status
 
 from rv16_lib import logger
@@ -5,6 +6,11 @@ from rv16_lib.exceptions import RV16Exception
 from rv16_lib.architecture.base_provider import BaseProvider
 from rv16_lib.configuration_manager import ConfigurationManagerProxy
 from rv16_lib.configuration_manager.entities import ServiceRegistrationRequest, ServicePairingRequest
+
+class PairedServiceConfig(BaseModel):
+    provider: str
+    host: str
+    port: int
 
 
 class BaseService:
@@ -29,12 +35,18 @@ class BaseService:
         raise NotImplementedError()
 
     def get_provider(self, provider: str) -> BaseProvider:
-        try:
-            p = self.providers.get(provider)
-            if p:
-                return p
-        except Exception:
+
+        if not self.providers or len(self.providers) == 0:
+            raise RV16Exception(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                message="No providers available. Please initialize the service properly."
+            )
+
+        p = self.providers.get(provider)
+        if not p:
             raise RV16Exception(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 message=f"Provider {provider} not supported."
             )
+        return p
+
