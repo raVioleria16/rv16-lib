@@ -2,6 +2,7 @@ import os
 from typing import TypeVar, Type, Optional
 
 import httpx
+import requests
 import yaml
 from httpx import Response
 from pydantic import BaseModel
@@ -12,8 +13,7 @@ from rv16_lib.logger import get_logger
 TConfig = TypeVar("TConfig", bound=BaseModel)
 logger = get_logger("utils")
 
-
-async def call_srv(method: str, url: str, data: Optional[dict] = None, files: Optional[dict] = None, timeout: int = 5) -> Response:
+async def call_srv_async(method: str, url: str, data: Optional[dict] = None, files: Optional[dict] = None, timeout: int = 5) -> Response:
     """ Send an asynchronous HTTP POST request to the specified URL.
    Args:
        method (str): The HTTP method to use (e.g., 'POST', 'GET')
@@ -43,6 +43,52 @@ async def call_srv(method: str, url: str, data: Optional[dict] = None, files: Op
         logger.error(f"Failed to send request: {e} ❌")
         raise e
 
+
+def call_srv_sync(method: str, url: str, data: Optional[dict] = None, files: Optional[dict] = None, timeout: int = 5) -> Response:
+    """ Send a synchronous HTTP request to the specified URL using the requests library.
+
+   Args:
+       method (str): The HTTP method to use (e.g., 'POST', 'GET', 'PUT', 'DELETE')
+       url (str): The target URL for the request
+       data (dict, optional): The data to send in the request body. Defaults to None.
+       files (dict, optional): Files to send with the request (for multipart/form-data). Defaults to None.
+       timeout (int, optional): Request timeout in seconds. Defaults to 5.
+
+   Returns:
+       requests.Response: The HTTP response object
+
+   Raises:
+       requests.exceptions.RequestException: If the request fails due to network, timeout, or other issues.
+       requests.exceptions.HTTPError: If the response status indicates an error (raised by raise_for_status()).
+   """
+    try:
+        logger.info(f"Sending request to {url}...")
+
+        # Use requests.request for a generic method call
+        response = requests.request(
+            method=method,
+            url=url,
+            data=data,
+            files=files,
+            timeout=timeout
+        )
+
+        # raise_for_status checks for bad status codes (4xx or 5xx)
+        response.raise_for_status()
+        logger.info("Request successful! ✅")
+        return response
+
+    # Catching the base exception for requests errors, which includes
+    # ConnectionError, Timeout, TooManyRedirects, and HTTPError
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send request: {e} ❌")
+        # requests.exceptions.HTTPError is a subclass of requests.exceptions.RequestException,
+        # so this block handles both connection/timeout and HTTP status errors.
+        raise e
+    except Exception as e:
+        # Catch any other unexpected exceptions
+        logger.error(f"An unexpected error occurred: {e} ❌")
+        raise e
 
 def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml", abs_path: bool = False) -> TConfig:
     """
