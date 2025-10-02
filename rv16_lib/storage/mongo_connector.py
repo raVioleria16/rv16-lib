@@ -1,7 +1,7 @@
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Optional, Type
 
 from bson import ObjectId
-from pydantic import BaseModel, Field, ConfigDict, model_validator
+from pydantic import Field, ConfigDict, model_validator
 from pymongo import MongoClient
 
 from rv16_lib import logger
@@ -28,13 +28,13 @@ class MongoElement(DatabaseElement):
 class MongoConnector(DatabaseConnector):
 
     def __init__(self, host: str, port: int, db_name: str):
-        self.client = MongoClient(f'mongodb://{host}:{port}/')
+        self.client: MongoClient = MongoClient(f'mongodb://{host}:{port}/')
         self.db = self.client[db_name]
 
         self.db.command('ping')
         logger.info("Connected to MongoDB successfully.")
 
-    def insert_one(self, element: MongoElement, collection_name: str = None) -> ObjectId:
+    def insert_one(self, element: MongoElement, collection_name: Optional[str] = None) -> ObjectId:
         if not collection_name:
             raise ValueError("Collection name must be provided for MongoDB insert operation.")
 
@@ -43,7 +43,7 @@ class MongoConnector(DatabaseConnector):
         return result.inserted_id
 
 
-    def insert_many(self, elements: list[MongoElement], collection_name: str = None) -> list[ObjectId]:
+    def insert_many(self, elements: list[MongoElement], collection_name: Optional[str] = None) -> list[ObjectId]:
         if not collection_name:
             raise ValueError("Collection name must be provided for MongoDB insert operation.")
 
@@ -53,7 +53,7 @@ class MongoConnector(DatabaseConnector):
         return result.inserted_ids
 
 
-    def delete(self, query: dict, collection_name: str = None) -> int:
+    def delete(self, query: dict, collection_name: Optional[str] = None) -> int:
         if not collection_name:
             raise ValueError("Collection name must be provided for MongoDB insert operation.")
 
@@ -62,7 +62,7 @@ class MongoConnector(DatabaseConnector):
         return result.deleted_count
 
 
-    def update(self, query: dict, element: MongoElement, collection_name: str = None) -> int:
+    def update(self, query: dict, element: MongoElement, collection_name: Optional[str] = None) -> int:
         if not collection_name:
             raise ValueError("Collection name must be provided for MongoDB insert operation.")
 
@@ -73,7 +73,7 @@ class MongoConnector(DatabaseConnector):
         return result.modified_count
 
 
-    def find(self, query: dict, collection_name: str = None, model_type: Optional[Type[MongoElement]] = None) -> list[MongoElement]:
+    def find(self, query: dict, collection_name: Optional[str] = None, model_type: Optional[Type[MongoElement]] = None) -> list[MongoElement]:
         if not collection_name:
             raise ValueError("Collection name must be provided for MongoDB insert operation.")
 
@@ -82,6 +82,3 @@ class MongoConnector(DatabaseConnector):
             return []
 
         return [model_type(**r) for r in result] if model_type else list(result)
-
-    def execute_query(self,  query: Any, model_type: Optional[Type[MongoElement]] = None) -> list[MongoElement]:
-        pass

@@ -1,0 +1,10 @@
+PyYAML==6.0.2,
+pydantic==2.11.9,
+httpx==0.28.1,
+starlette==0.48.0,
+requests==2.32.5,
+mypy==1.18.2
+redis==6.4.0
+pymongo==4.15.1,
+fastapi==0.117.1,
+uvicorn==0.37.0
