@@ -1,5 +1,4 @@
-from abc import ABC
-from typing import TypeVar
+from typing import TypeVar, Optional, Any
 
 from pydantic import BaseModel
 
@@ -20,15 +19,12 @@ class BaseServiceConnector:
 
     def __init__(self, config: TServiceConfig):
         self.url = None
-        self.connection = None
+        self.connection: Optional[Any] = None
         self.config = config
         self.provider = self.config.provider
         self.srv_name = self.config.name
 
-    async def setup_connections(self, cm_provider: str, output_type): # TODO - tipizzare
-        self.connection = await cm.get(payload=ServiceConfigurationRequest(service=self.srv_name,
-                                                                           provider=cm_provider),
-                                       output_type=output_type)
-
-    # async def call(self, *args, **kwargs):
-    #     raise NotImplementedError("Subclasses must implement this method")
+    def setup_connections(self, cm_provider: str, output_type): # TODO - tipizzare
+        self.connection = cm.get(payload=ServiceConfigurationRequest(service=self.srv_name,
+                                                                     provider=cm_provider),
+                                 output_type=output_type)
