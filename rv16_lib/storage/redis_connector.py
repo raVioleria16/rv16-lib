@@ -8,18 +8,13 @@ from rv16_lib.storage.database_connector import DatabaseConnector, DatabaseEleme
 
 
 class RedisElement(DatabaseElement):
+    key: str
+    value: Optional[str]
 
     def __init__(self, key, value: Dict[str, Any]):
-        super().__init__()
-        self.key = key
+        super().__init__(key=key, value=None)
         self.value: str = json.dumps(value)
 
-    # key: str
-    # value: Optional[Dict[str, Any]] = None
-    #
-    # @property
-    # def value(self) -> str:
-    #     return json.loads(self.value)
 
 class RedisConnector(DatabaseConnector):
 
