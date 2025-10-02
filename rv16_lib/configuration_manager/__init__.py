@@ -1,12 +1,12 @@
-import os
 from typing import TypeVar, Type, Optional, Union
 from pydantic import BaseModel
 
+from rv16_lib.exceptions import RV16Exception
 from rv16_lib.configuration_manager.entities import ServiceRegistrationRequest, ServiceConfigurationRequest, \
     ServicePairingRequest
 from rv16_lib.configuration_manager.exceptions import ConfigurationManagerProxyException
 from rv16_lib.logger import logger
-from rv16_lib.utils import call_srv, get_object_from_config
+from rv16_lib.utils import call_srv_sync, call_srv_async
 
 # Create a type variable for the Config model
 TConfig = TypeVar("TConfig", bound=BaseModel)
@@ -23,7 +23,7 @@ class ConfigurationManagerProxy:
         self.pair_path = pair_path
         self.get_path = get_path
 
-    async def register(self, request: ServiceRegistrationRequest, path: str = "/register-service") -> dict:
+    def register(self, request: ServiceRegistrationRequest, path: str = "/register-service") -> dict:
         """Register a service with the Configuration Manager.
         Args:
             request (ServiceRegistrationRequest): The service registration request containing
@@ -38,36 +38,15 @@ class ConfigurationManagerProxy:
             httpx.HTTPStatusError: If the response status indicates an error
         """
         url = f"http://{self.hostname}:{self.port}{path}"
-        response = await call_srv(method="POST", url=url, data=request.model_dump())
+        response = call_srv_sync(method="POST", url=url, data=request.model_dump())
 
         if response.status_code != 200:
             raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)
 
         return response.json()
 
-    async def pair(self, request: ServicePairingRequest) -> dict:
-        """Pair a service to a target (srv or app) through the Configuration Manager.
-        Args:
-            request (ServicePairingRequest): The service pairing request containing
-                details about the services to be paired
 
-        Returns:
-            dict: The JSON response from the configuration manager
-
-        Raises:
-            ConfigurationManagerProxyException: If the pairing fails (non-200 status code)
-            httpx.RequestError: If the request fails due to network or other issues
-            httpx.HTTPStatusError: If the response status indicates an error
-        """
-        url = f"http://{self.hostname}:{self.port}{self.pair_path}"
-        response = await call_srv(method="POST", url=url, data=request.model_dump())
-
-        if response.status_code != 200:
-            raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)
-
-        return response.json()
-
-    async def get(self, payload: ServiceConfigurationRequest, output_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
+    def get(self, payload: ServiceConfigurationRequest, output_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
         """Retrieve service configuration from the Configuration Manager.
         Args:
             payload (ServiceConfigurationRequest): The service configuration request containing
@@ -84,14 +63,15 @@ class ConfigurationManagerProxy:
             httpx.HTTPStatusError: If the response status indicates an error
         """
         url = f"http://{self.hostname}:{self.port}{self.get_path}"
-        response = await call_srv(method="POST",
+        response = call_srv_sync(method="POST",
                                   url=url,
                                   data=payload.model_dump())
 
         if response.status_code != 200:
             logger.error(f"Failed to send request: {response} <UNK>")
+            raise RV16Exception(status_code=500,
+                                message=f"Failed to send request: {response} <UNK>")
 
-        response = output_type(**response.json()) if output_type else response.json()
-        return response
+        return output_type(**response.json()) if output_type else response.json()
 
 configuration_manager = ConfigurationManagerProxy()

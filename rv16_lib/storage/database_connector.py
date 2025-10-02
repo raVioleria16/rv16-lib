@@ -26,7 +26,3 @@ class DatabaseConnector(ABC):
     @abstractmethod
     def find(self, *args, **kwargs) -> Any:
         raise NotImplementedError("Subclasses must implement this method")
-
-    @abstractmethod
-    def execute_query(self, *args, **kwargs) -> Any:
-        raise NotImplementedError("Subclasses must implement this method")
