@@ -13,7 +13,7 @@ class BaseService:
         self.service_name = None
         self.providers: dict[str, BaseProvider] = {}
 
-    async def register_service(self, provider: str, configuration: dict):
+    def register_service(self, provider: str, configuration: dict):
         logger.info("Starting service registration...")
 
         request = ServiceRegistrationRequest(
@@ -21,28 +21,21 @@ class BaseService:
             service=self.service_name,
             configuration=configuration
         )
-        response = await cm.register(request)
+        response = cm.register(request)
         logger.info(f"Service registration response: {response}")
         return response
 
-    async def pair_to_service(self, provider: str, service: str, configuration: dict):
-        request = ServicePairingRequest(
-            provider=provider,
-            service=service,
-            target=self.service_name,
-            configuration=configuration
-        )
-        response = await cm.register(request)
-        return response
-
-    async def initialize_service(self):
+    def initialize_service(self):
         raise NotImplementedError()
 
     def get_provider(self, provider: str) -> BaseProvider:
         try:
-            return self.providers.get(provider)
+            p = self.providers.get(provider)
+            if p:
+                return p
         except ValueError:
-            raise RV16Exception(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                message=f"Provider {provider} not supported."
-            )
+            pass
+        raise RV16Exception(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            message=f"Provider {provider} not supported."
+        )
