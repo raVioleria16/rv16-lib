@@ -11,10 +11,6 @@ class RedisElement(DatabaseElement):
     key: str
     value: Optional[str]
 
-    def __init__(self, key, value: Dict[str, Any]):
-        super().__init__(key=key, value=None)
-        self.value: str = json.dumps(value)
-
 
 class RedisConnector(DatabaseConnector):
 
@@ -98,7 +94,7 @@ class RedisConnector(DatabaseConnector):
                                 message=f"Error updating key {element.key}")
 
 
-    def find(self, element: RedisElement) -> Dict[str, Any]:
+    def find(self, element: RedisElement) -> str:
         """
         Finds a single key's value in Redis.
         """
@@ -110,7 +106,7 @@ class RedisConnector(DatabaseConnector):
             value = self.client.get(element.key)
             if value:
                 # Assuming the value is a JSON string
-                return json.loads(value)
+                return value
             else:
                 logger.warning(f"Key not found: {element.key}")
                 raise RV16Exception(status_code=500,
