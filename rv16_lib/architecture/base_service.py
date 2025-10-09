@@ -33,9 +33,8 @@ class BaseService:
             p = self.providers.get(provider)
             if p:
                 return p
-        except ValueError:
-            pass
-        raise RV16Exception(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            message=f"Provider {provider} not supported."
-        )
+        except Exception:
+            raise RV16Exception(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                message=f"Provider {provider} not supported."
+            )

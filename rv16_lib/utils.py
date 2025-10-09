@@ -1,3 +1,4 @@
+import json
 import os
 from typing import TypeVar, Type, Optional
 
@@ -13,7 +14,7 @@ from rv16_lib.logger import get_logger
 TConfig = TypeVar("TConfig", bound=BaseModel)
 logger = get_logger("utils")
 
-async def call_srv_async(method: str, url: str, data: Optional[dict] = None, files: Optional[dict] = None, timeout: int = 5) -> Response:
+async def call_srv_async(method: str, url: str, **kwargs) -> Response:
     """ Send an asynchronous HTTP POST request to the specified URL.
    Args:
        method (str): The HTTP method to use (e.g., 'POST', 'GET')
@@ -32,7 +33,7 @@ async def call_srv_async(method: str, url: str, data: Optional[dict] = None, fil
     try:
         async with httpx.AsyncClient() as client:
             logger.info(f"Sending request to {url}...")
-            response = await client.request(method=method, url=url, data=data, files=files, timeout=timeout)
+            response = await client.request(method=method, url=url, **kwargs)
             response.raise_for_status()
             logger.info("Request successful! ✅")
             return response
@@ -44,7 +45,7 @@ async def call_srv_async(method: str, url: str, data: Optional[dict] = None, fil
         raise e
 
 
-def call_srv_sync(method: str, url: str, data: Optional[dict] = None, files: Optional[dict] = None, timeout: int = 5) -> Response:
+def call_srv_sync(method: str, url: str, **kwargs) -> Response:
     """ Send a synchronous HTTP request to the specified URL using the requests library.
 
    Args:
@@ -68,13 +69,10 @@ def call_srv_sync(method: str, url: str, data: Optional[dict] = None, files: Opt
         response = requests.request(
             method=method,
             url=url,
-            data=data,
-            files=files,
-            timeout=timeout
+            **kwargs
         )
 
         # raise_for_status checks for bad status codes (4xx or 5xx)
-        response.raise_for_status()
         logger.info("Request successful! ✅")
         return response
 

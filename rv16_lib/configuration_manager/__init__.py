@@ -38,7 +38,9 @@ class ConfigurationManagerProxy:
             httpx.HTTPStatusError: If the response status indicates an error
         """
         url = f"http://{self.hostname}:{self.port}{path}"
-        response = call_srv_sync(method="POST", url=url, data=request.model_dump())
+        response = call_srv_sync(method="POST",
+                                 url=url,
+                                 json=request.model_dump())
 
         if response.status_code != 200:
             raise ConfigurationManagerProxyException(status_code=response.status_code, message=response.text)
@@ -65,7 +67,7 @@ class ConfigurationManagerProxy:
         url = f"http://{self.hostname}:{self.port}{self.get_path}"
         response = call_srv_sync(method="POST",
                                   url=url,
-                                  data=payload.model_dump())
+                                  json=payload.model_dump())
 
         if response.status_code != 200:
             logger.error(f"Failed to send request: {response} <UNK>")
