@@ -17,13 +17,13 @@ class ConfigurationManagerProxy:
     from a remote Configuration Manager service via HTTP requests.
     """
 
-    def __init__(self, hostname: str = "srv-configuration-manager", port: int = 8000, pair_path: str = "/pair-service", get_path: str = "/get-service-configuration"):
+    def __init__(self, hostname: str = "srv-configuration-manager", port: int = 8000, register_path: str = "/register-service", get_path: str = "/get-service-configuration"):
         self.hostname = hostname
         self.port = port
-        self.pair_path = pair_path
-        self.get_path = get_path
+        self._register_path = register_path
+        self._get_path = get_path
 
-    def register(self, request: ServiceRegistrationRequest, path: str = "/register-service") -> dict:
+    def register(self, request: ServiceRegistrationRequest) -> dict:
         """Register a service with the Configuration Manager.
         Args:
             request (ServiceRegistrationRequest): The service registration request containing
@@ -37,7 +37,7 @@ class ConfigurationManagerProxy:
             httpx.RequestError: If the request fails due to network or other issues
             httpx.HTTPStatusError: If the response status indicates an error
         """
-        url = f"http://{self.hostname}:{self.port}{path}"
+        url = f"http://{self.hostname}:{self.port}{self._register_path}"
         response = call_srv_sync(method="POST",
                                  url=url,
                                  json=request.model_dump())
@@ -64,7 +64,7 @@ class ConfigurationManagerProxy:
             httpx.RequestError: If the request fails due to network or other issues
             httpx.HTTPStatusError: If the response status indicates an error
         """
-        url = f"http://{self.hostname}:{self.port}{self.get_path}"
+        url = f"http://{self.hostname}:{self.port}{self._get_path}"
         response = call_srv_sync(method="POST",
                                   url=url,
                                   json=payload.model_dump())
@@ -75,5 +75,3 @@ class ConfigurationManagerProxy:
                                 message=f"Failed to send request: {response} <UNK>")
 
         return output_type(**response.json()) if output_type else response.json()
-
-configuration_manager = ConfigurationManagerProxy()
