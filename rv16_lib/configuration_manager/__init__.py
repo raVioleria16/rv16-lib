@@ -17,7 +17,7 @@ class ConfigurationManagerProxy:
     from a remote Configuration Manager service via HTTP requests.
     """
 
-    def __init__(self, hostname: str, port: int = 8000, register_path: str = "/register-service", get_path: str = "/get-service-configuration"):
+    def __init__(self, hostname: str = "srv-configuration-manager", port: int = 8000, register_path: str = "/register-service", get_path: str = "/get-service-configuration"):
         self.hostname = hostname
         self.port = port
         self._register_path = register_path
