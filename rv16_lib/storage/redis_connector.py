@@ -1,6 +1,6 @@
 import json
 import redis
-from typing import Dict, Optional, Any
+from typing import Optional, Any
 
 from rv16_lib.exceptions import RV16Exception
 from rv16_lib.logger import logger
@@ -9,11 +9,7 @@ from rv16_lib.storage.database_connector import DatabaseConnector, DatabaseEleme
 
 class RedisElement(DatabaseElement):
     key: str
-    value: Optional[str]
-
-    def __init__(self, key, value: Dict[str, Any]):
-        super().__init__(key=key, value=None)
-        self.value: str = json.dumps(value)
+    value: Optional[str] = None
 
 
 class RedisConnector(DatabaseConnector):
@@ -47,8 +43,7 @@ class RedisConnector(DatabaseConnector):
                                 message="Redis client not initialized")
 
         try:
-            value = json.dumps(element.value)
-            self.client.set(element.key, value)
+            self.client.set(element.key, element.value)
             logger.info(f"Successfully inserted key: {element.key}")
             return True
 
@@ -98,7 +93,7 @@ class RedisConnector(DatabaseConnector):
                                 message=f"Error updating key {element.key}")
 
 
-    def find(self, element: RedisElement) -> Dict[str, Any]:
+    def find(self, element: RedisElement) -> str:
         """
         Finds a single key's value in Redis.
         """
@@ -110,7 +105,7 @@ class RedisConnector(DatabaseConnector):
             value = self.client.get(element.key)
             if value:
                 # Assuming the value is a JSON string
-                return json.loads(value)
+                return value
             else:
                 logger.warning(f"Key not found: {element.key}")
                 raise RV16Exception(status_code=500,
