@@ -1,6 +1,6 @@
 import json
 import redis
-from typing import Dict, Optional, Any
+from typing import Optional, Any
 
 from rv16_lib.exceptions import RV16Exception
 from rv16_lib.logger import logger
@@ -9,7 +9,7 @@ from rv16_lib.storage.database_connector import DatabaseConnector, DatabaseEleme
 
 class RedisElement(DatabaseElement):
     key: str
-    value: Optional[str]
+    value: Optional[str] = None
 
 
 class RedisConnector(DatabaseConnector):
