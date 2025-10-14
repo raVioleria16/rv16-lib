@@ -70,10 +70,11 @@ class ConfigurationManagerProxy:
                                   url=url,
                                   json=payload.model_dump())
 
+        response_payload = response.json()
         if response.status_code != 200:
-            logger.error(f"Failed to send request: {response} <UNK>")
+            logger.error(f"Failed to send request: {response_payload}")
             raise RV16Exception(status_code=500,
-                                message=f"Failed to send request: {response} <UNK>")
+                                message=f"Failed to send request: {response_payload}")
 
-        response = json.loads(response.json())
-        return output_type(**response) if output_type else response
+        response_payload = json.loads(response_payload)
+        return output_type(**response_payload) if output_type else response_payload
