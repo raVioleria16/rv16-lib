@@ -73,7 +73,7 @@ class ConfigurationManagerProxy:
         response_payload = response.json()
         if response.status_code != 200:
             logger.error(f"Failed to send request: {response_payload}")
-            raise RV16Exception(status_code=500,
+            raise ConfigurationManagerProxyException(status_code=500,
                                 message=f"Failed to send request: {response_payload}")
 
         # response_payload = json.loads(response_payload)

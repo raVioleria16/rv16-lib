@@ -6,7 +6,9 @@ import requests # type: ignore
 import yaml # type: ignore
 from httpx import Response
 from pydantic import BaseModel
+from starlette import status
 
+from rv16_lib.exceptions import RV16Exception
 from rv16_lib.logger import get_logger
 
 # Create a type variable for the Config model
@@ -38,10 +40,16 @@ async def call_srv_async(method: str, url: str, **kwargs) -> Response:
             return response
     except httpx.RequestError as e:
         logger.error(f"Failed to send request: {e} ❌")
-        raise e
+        raise RV16Exception(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=f"Failed to send request to {url}: {e}"
+        )
     except Exception as e:
         logger.error(f"Failed to send request: {e} ❌")
-        raise e
+        raise RV16Exception(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=f"An unexpected error occurred: {e}"
+        )
 
 
 def call_srv_sync(method: str, url: str, **kwargs) -> Response:
@@ -79,13 +87,17 @@ def call_srv_sync(method: str, url: str, **kwargs) -> Response:
     # ConnectionError, Timeout, TooManyRedirects, and HTTPError
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to send request: {e} ❌")
-        # requests.exceptions.HTTPError is a subclass of requests.exceptions.RequestException,
-        # so this block handles both connection/timeout and HTTP status errors.
-        raise e
+        raise RV16Exception(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=f"Failed to send request to {url}: {e}"
+        )
     except Exception as e:
         # Catch any other unexpected exceptions
         logger.error(f"An unexpected error occurred: {e} ❌")
-        raise e
+        raise RV16Exception(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=f"An unexpected error occurred: {e}"
+        )
 
 def get_object_from_config(config_model: Type[TConfig], filename: str = "app.yaml", abs_path: bool = False) -> TConfig:
     """
