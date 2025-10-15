@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import BaseModel
 
-from exceptions import RV16Exception
+from rv16_lib.exceptions import RV16Exception
 from rv16_lib.configuration_manager import ConfigurationManagerProxyException
 from rv16_lib.configuration_manager import ConfigurationManagerProxy
 
