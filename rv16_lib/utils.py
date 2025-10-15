@@ -1,10 +1,9 @@
-import json
 import os
-from typing import TypeVar, Type, Optional
+from typing import TypeVar, Type
 
 import httpx
-import requests
-import yaml
+import requests # type: ignore
+import yaml # type: ignore
 from httpx import Response
 from pydantic import BaseModel
 

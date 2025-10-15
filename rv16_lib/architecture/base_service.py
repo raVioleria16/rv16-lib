@@ -30,9 +30,7 @@ class BaseService:
 
     def get_provider(self, provider: str) -> BaseProvider:
         try:
-            p = self.providers.get(provider)
-            if p:
-                return p
+            return self.providers[provider]
         except Exception:
             raise RV16Exception(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
