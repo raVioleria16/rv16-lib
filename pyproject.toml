@@ -13,6 +13,13 @@ dependencies = [
     "pydantic"
 ]
 
+[tool.pytest.ini_options]
+pythonpath = [ "." ]
+addopts = "--cov=rv16_lib --cov-report term-missing"
+
+[tool.coverage.run]
+source = ["rv16_lib"]
+
 [project.optional-dependencies]
 core = [
     "PyYAML==6.0.2",
@@ -20,7 +27,9 @@ core = [
     "httpx==0.28.1",
     "starlette==0.48.0",
     "requests==2.32.5",
-    "mypy==1.18.2"
+    "mypy==1.18.2",
+    "pytest==8.4.2",
+    "pytest-cov==7.0.0",
 ]
 redis = [
     "redis==6.4.0"

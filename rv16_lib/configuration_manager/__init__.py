@@ -1,10 +1,7 @@
-import json
 from typing import TypeVar, Type, Optional, Union
 from pydantic import BaseModel
 
-from rv16_lib.exceptions import RV16Exception
-from rv16_lib.configuration_manager.entities import ServiceRegistrationRequest, ServiceConfigurationRequest, \
-    ServicePairingRequest
+from rv16_lib.configuration_manager.entities import CMRegistrationRequest, CMConfigurationRequest
 from rv16_lib.configuration_manager.exceptions import ConfigurationManagerProxyException
 from rv16_lib.logger import logger
 from rv16_lib.utils import call_srv_sync, call_srv_async
@@ -24,7 +21,7 @@ class ConfigurationManagerProxy:
         self._register_path = register_path
         self._get_path = get_path
 
-    def register(self, request: ServiceRegistrationRequest) -> dict:
+    def register(self, request: CMRegistrationRequest) -> dict:
         """Register a service with the Configuration Manager.
         Args:
             request (ServiceRegistrationRequest): The service registration request containing
@@ -49,10 +46,10 @@ class ConfigurationManagerProxy:
         return response.json()
 
 
-    def get(self, payload: ServiceConfigurationRequest, output_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
+    def get(self, payload: CMConfigurationRequest, output_type: Optional[Type[TConfig]] = None) -> Union[dict, TConfig]:
         """Retrieve service configuration from the Configuration Manager.
         Args:
-            payload (ServiceConfigurationRequest): The service configuration request containing
+            payload (CMConfigurationRequest): The service configuration request containing
                 details about the configuration to retrieve
             output_type (Optional[Type[TConfig]], optional): The Pydantic model type to parse
                 the response into. If None, returns raw JSON. Defaults to None.
@@ -73,8 +70,8 @@ class ConfigurationManagerProxy:
         response_payload = response.json()
         if response.status_code != 200:
             logger.error(f"Failed to send request: {response_payload}")
-            raise RV16Exception(status_code=500,
+            raise ConfigurationManagerProxyException(status_code=500,
                                 message=f"Failed to send request: {response_payload}")
 
-        response_payload = json.loads(response_payload)
+        # response_payload = json.loads(response_payload)
         return output_type(**response_payload) if output_type else response_payload

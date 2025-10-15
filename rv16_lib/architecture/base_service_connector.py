@@ -1,13 +1,13 @@
-from typing import TypeVar, Optional, Any
+from typing import TypeVar, Optional, Any, Type
 
 from pydantic import BaseModel
 
-from rv16_lib.configuration_manager import ServiceConfigurationRequest, ConfigurationManagerProxy
+from rv16_lib.configuration_manager import CMConfigurationRequest, ConfigurationManagerProxy
 
 
-class BaseConnectionParams(BaseModel):
-    hostname: str
-    port: int
+class CMServiceConfig(BaseModel):
+    provider: str
+    hostname: Optional[str] = None
 
 
 class BaseServiceConfig(BaseModel):
@@ -15,7 +15,7 @@ class BaseServiceConfig(BaseModel):
     hostname: str
 
 
-TConnectionParams = TypeVar("TConnectionParams", bound=BaseConnectionParams)
+# TConnectionParams = TypeVar("TConnectionParams", bound=BaseConnectionParams)
 TServiceConfig = TypeVar("TServiceConfig", bound=BaseServiceConfig)
 
 
@@ -28,7 +28,7 @@ class BaseServiceConnector:
         self.provider = self.config.provider
         self.srv_name = self.config.hostname
 
-    def setup_connections(self, cm_proxy: ConfigurationManagerProxy, cm_provider: str, output_type):  # TODO - tipizzare
-        self.connection = cm_proxy.get(payload=ServiceConfigurationRequest(service=self.srv_name,
+    def setup_connections(self, cm_proxy: ConfigurationManagerProxy, cm_provider: str, output_type: Optional[Type]):
+        self.connection = cm_proxy.get(payload=CMConfigurationRequest(service=self.srv_name,
                                                                            provider=cm_provider),
                                        output_type=output_type)

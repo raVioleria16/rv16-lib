@@ -5,7 +5,7 @@ from rv16_lib import logger
 from rv16_lib.exceptions import RV16Exception
 from rv16_lib.architecture.base_provider import BaseProvider
 from rv16_lib.configuration_manager import ConfigurationManagerProxy
-from rv16_lib.configuration_manager.entities import ServiceRegistrationRequest, ServicePairingRequest
+from rv16_lib.configuration_manager.entities import CMRegistrationRequest
 
 class PairedServiceConfig(BaseModel):
     provider: str
@@ -22,7 +22,7 @@ class BaseService:
     def register_service(self, cm_proxy: ConfigurationManagerProxy, provider: str, configuration: dict):
         logger.info("Starting service registration...")
 
-        request = ServiceRegistrationRequest(
+        request = CMRegistrationRequest(
             provider=provider,
             service=self.service_name,
             configuration=configuration

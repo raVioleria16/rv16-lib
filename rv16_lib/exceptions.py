@@ -18,7 +18,7 @@ class RV16Exception(Exception):
             status_code (int): The status code for the exception.
             message (str): The error message.
         """
-        super().__init__(message)  # Call the base class constructor
+        super().__init__()  # Call the base class constructor
         self.status_code = status_code
         self.message = message
 
