@@ -29,7 +29,7 @@ class TestBaseService:
         provider = "test_provider"
         configuration = {"key": "value"}
 
-        with patch('rv16_lib.architecture.base_service.ServiceRegistrationRequest'):
+        with patch('rv16_lib.architecture.base_service.CMRegistrationRequest'):
 
             response = base_service.register_service(mock_cm_proxy, provider, configuration)
             mock_cm_proxy.register.assert_called_once()
