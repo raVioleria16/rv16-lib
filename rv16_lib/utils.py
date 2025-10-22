@@ -15,6 +15,24 @@ from rv16_lib.logger import get_logger
 TConfig = TypeVar("TConfig", bound=BaseModel)
 logger = get_logger("utils")
 
+def ping(url: str, timeout: int = 5) -> bool:
+    """ Check if the specified URL is reachable within the given timeout.
+
+   Args:
+       url (str): The target URL to ping
+       timeout (int, optional): Timeout in seconds. Defaults to 5.
+
+   Returns:
+       bool: True if the URL is reachable, False otherwise
+   """
+    try:
+        url = url + "/health"
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+        return True
+    except requests.RequestException as e:
+        return False
+
 async def call_srv_async(method: str, url: str, **kwargs) -> Response:
     """ Send an asynchronous HTTP POST request to the specified URL.
    Args:
