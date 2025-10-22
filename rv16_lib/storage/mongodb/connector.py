@@ -1,29 +1,12 @@
-from typing import Any, Optional, Type
+from typing import Optional, Type
 
 from bson import ObjectId
-from pydantic import Field, ConfigDict, model_validator
 from pymongo import MongoClient
 
 from rv16_lib import logger
 from rv16_lib.storage.database_connector import DatabaseConnector, DatabaseElement, TConfig
+from rv16_lib.storage.mongodb.entities import MongoElement
 
-
-class MongoElement(DatabaseElement):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    id: Optional[ObjectId] = Field(alias="_id", default=None)
-
-    def model_dump(self, **kwargs):
-        data = super().model_dump(**kwargs)
-        if self.id:
-            data["id"] = str(self.id)
-        return data
-
-    @model_validator(mode='before')
-    def preprocess_id(cls, data: Any):
-        if isinstance(data, dict):
-            if 'id' in data and isinstance(data["id"], str):
-                data['_id'] = ObjectId(data["id"])
-        return data
 
 class MongoConnector(DatabaseConnector):
 
