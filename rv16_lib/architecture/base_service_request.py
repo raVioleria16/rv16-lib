@@ -1,9 +1,13 @@
 from pydantic import BaseModel
 
 
-class BaseServiceRequest(BaseModel):
-    """ Base class for service requests.
+class BaseServicePayload(BaseModel):
+    """ Base class for service payload.
     """
     provider: str
+
+class BaseServiceHttpRequest(BaseModel):
+    """ Base class for service HTTP requests.
+    """
     host: str
     port: int

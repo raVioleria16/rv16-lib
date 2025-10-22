@@ -1,13 +1,18 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
-from rv16_lib.architecture.base_service_request import BaseServiceRequest
+from rv16_lib.architecture.base_service_request import BaseServiceHttpRequest, BaseServicePayload
 
 
-class OCRConnection(BaseModel):
-    ...
+# class OCRConnection(BaseModel):
+#     ...
+#
+# class OCRRequest(BaseServiceRequest):
+#     ...
 
-class OCRRequest(BaseServiceRequest):
-    ...
+class OCRServiceConfig(BaseServiceHttpRequest, BaseServicePayload):
+    ocr_path: Optional[str] = "ocr"
 
-class OCRServiceConfig(BaseModel):
+class OCRServicePayload(BaseServicePayload):
     ...

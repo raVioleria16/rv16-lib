@@ -3,11 +3,10 @@ from typing import Any, Optional
 from bson import ObjectId
 from pydantic import Field, ConfigDict, model_validator, BaseModel
 
+from rv16_lib.architecture.base_service_request import BaseServiceHttpRequest
 from rv16_lib.storage.database_connector import DatabaseElement
 
-class MongoServiceConfig(BaseModel):
-    hostname: str
-    port: int
+class MongoServiceConfig(BaseServiceHttpRequest):
     dbname: str
     collections: list[str]
 

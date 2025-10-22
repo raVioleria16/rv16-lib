@@ -1,11 +1,11 @@
 import json
 import redis
-from typing import Optional, Any, Union
+from typing import Any
 
 from rv16_lib.exceptions import RV16Exception
 from rv16_lib.logger import logger
 from rv16_lib.storage.database_connector import DatabaseConnector, DatabaseElement
-from storage.redis.entities import RedisElement
+from rv16_lib.storage.redis.entities import RedisElement
 
 
 class RedisConnector(DatabaseConnector):
