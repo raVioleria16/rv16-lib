@@ -8,3 +8,6 @@ class OCRConnection(BaseModel):
 
 class OCRRequest(BaseServiceRequest):
     ...
+
+class OCRServiceConfig(BaseModel):
+    ...
