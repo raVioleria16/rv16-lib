@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import BaseModel
 
@@ -16,20 +16,21 @@ class Role(str, Enum):
 
 class Message(BaseModel):
     role: Role
-    content: str
+    content: Any
 
 
 class TextGenerationServiceParams(BaseModel):
     messages: list[Message]
-    system_prompt: str
-    user_prompt: str
     model: str
-    max_tokens: int
-    temperature: float
-    optional: Optional[dict] = None
+    max_tokens: Optional[int] = None
+    temperature: Optional[float] = None
+    top_k: Optional[int] = None
+    top_p: Optional[float] = None
+    options: Optional[dict] = None
 
 class OpenAITextGenerationServiceParams(TextGenerationServiceParams):
-    ...
+    tools: Optional[list[dict[str, str]]] = None
+    reasoning: Optional[bool] = False
 
 class GoogleTextGenerationServiceParams(TextGenerationServiceParams):
     ...
