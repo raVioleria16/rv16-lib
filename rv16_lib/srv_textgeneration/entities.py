@@ -2,10 +2,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from rv16_lib.architecture.base_service_request import BaseServiceHttpRequest, BaseServicePayload
+from rv16_lib.architecture.base_service_request import BaseServiceHttpRequest, BaseServiceRequestPayload
 
 
-class TextGenerationServiceConfig(BaseServiceHttpRequest, BaseServicePayload):
+class TextGenerationServiceConfig(BaseServiceHttpRequest, BaseServiceRequestPayload):
     generation_path: Optional[str] = "generate"
 
 class TextGenerationServiceParams(BaseModel):
@@ -14,3 +14,14 @@ class TextGenerationServiceParams(BaseModel):
     model: str
     max_tokens: int
     temperature: float
+    optional: Optional[dict] = None
+
+class OpenAITextGenerationServiceParams(TextGenerationServiceParams):
+    ...
+
+class GoogleTextGenerationServiceParams(TextGenerationServiceParams):
+    ...
+
+class TextGenerationRequestPayload(BaseServiceRequestPayload):
+    params: TextGenerationServiceParams
+

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class BaseServicePayload(BaseModel):
+class BaseServiceRequestPayload(BaseModel):
     """ Base class for service payload.
     """
     provider: str
